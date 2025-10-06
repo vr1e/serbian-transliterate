@@ -1,0 +1,51 @@
+{
+	"name": "serbian-transliterate",
+	"version": "0.1.0",
+	"description": "A simple and robust utility for transliterating Serbian text between Cyrillic and Latin (Gaj's Latinica) alphabets.",
+	"keywords": [
+		"serbian",
+		"transliterate",
+		"transliteration",
+		"cyrillic",
+		"latin",
+		"serbia",
+		"srbija",
+		"ćirilica",
+		"latinica",
+		"gaj",
+		"preslovo"
+	],
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"test": "vitest",
+		"build": "rm -rf dist && tsc",
+		"format": "prettier --write \"**/*.{ts,md}\"",
+		"prepublishOnly": "npm test -- --run && npm run build"
+	},
+	"author": "vr1e",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/vr1e/serbian-transliterate.git"
+	},
+	"homepage": "https://github.com/vr1e/serbian-transliterate#readme",
+	"bugs": {
+		"url": "https://github.com/vr1e/serbian-transliterate/issues"
+	},
+	"devDependencies": {
+		"prettier": "^3.6.2",
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.4"
+	}
+}
