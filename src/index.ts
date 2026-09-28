@@ -160,23 +160,63 @@ const cyrillicToLatinMap: { [key: string]: string } = {
 
 /**
  * @internal
- * Regex for matching all Latin characters and digraphs that can be transliterated.
+ * Builds a lookup table indexed by UTF-16 code unit from a map's single-character keys.
  */
-const latinRegex = new RegExp(
-	Object.keys(latinToCyrillicMap)
-		.sort((a, b) => b.length - a.length)
-		.join('|'),
-	'g'
-);
+const toTable = (map: { [key: string]: string }) => {
+	const keys = Object.keys(map).filter((key) => key.length === 1);
+	const size = Math.max(...keys.map((key) => key.charCodeAt(0))) + 1;
+	// Pre-filled so V8 keeps a packed array instead of a sparse dictionary
+	const table: (string | undefined)[] = new Array(size).fill(undefined);
+	for (const key of keys) table[key.charCodeAt(0)] = map[key];
+	return table;
+};
+
+const cyrillicTable = toTable(cyrillicToLatinMap);
+const latinTable = toTable(latinToCyrillicMap);
 
 /**
  * @internal
- * Regex for matching all Cyrillic characters that can be transliterated.
+ * Two-letter Latin keys (lj, Nj, DŽ…) indexed by first, then second code unit,
+ * so letters that never start a digraph skip the second lookup.
  */
-const cyrillicRegex = new RegExp(
-	Object.keys(cyrillicToLatinMap).join('|'),
-	'g'
-);
+const latinDigraphs: (Record<number, string> | undefined)[] = [];
+for (const key of Object.keys(latinToCyrillicMap)) {
+	if (key.length === 2) {
+		const first = key.charCodeAt(0);
+		latinDigraphs[first] = {
+			...latinDigraphs[first],
+			[key.charCodeAt(1)]: latinToCyrillicMap[key]
+		};
+	}
+}
+
+/**
+ * @internal
+ * Single left-to-right scan; digraphs are tried before single letters, and
+ * unmapped runs are copied in one slice rather than character by character.
+ */
+const convert = (
+	text: string,
+	table: (string | undefined)[],
+	digraphs?: (Record<number, string> | undefined)[]
+) => {
+	let out = '';
+	let last = 0;
+	for (let i = 0; i < text.length; i++) {
+		const code = text.charCodeAt(i);
+		let mapped = table[code];
+		if (mapped === undefined) continue;
+		const pair = digraphs?.[code]?.[text.charCodeAt(i + 1)];
+		out += text.slice(last, i);
+		if (pair !== undefined) {
+			mapped = pair;
+			i++;
+		}
+		out += mapped;
+		last = i + 1;
+	}
+	return out + text.slice(last);
+};
 
 /**
  * Transliterates a string between Serbian Cyrillic and Latin alphabets.
@@ -198,14 +238,8 @@ const cyrillicRegex = new RegExp(
  */
 export default (text: string, direction: Direction) => {
 	if (direction === 'toLatin') {
-		return text.replace(
-			cyrillicRegex,
-			(char) => cyrillicToLatinMap[char] || char
-		);
-	} else {
-		// NFC so e.g. Z + U+030C (combining caron) matches the precomposed Ž key
-		return text
-			.normalize('NFC')
-			.replace(latinRegex, (match) => latinToCyrillicMap[match] || match);
+		return convert(text, cyrillicTable);
 	}
+	// NFC so e.g. Z + U+030C (combining caron) matches the precomposed Ž key
+	return convert(text.normalize('NFC'), latinTable, latinDigraphs);
 };
