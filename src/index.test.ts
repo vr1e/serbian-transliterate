@@ -68,6 +68,31 @@ describe('transliterate - toCyrillic', () => {
 		expect(transliterate('džep', 'toCyrillic')).toBe('џеп');
 	});
 
+	it('handles all-caps digraphs (LJ→Љ, NJ→Њ, DŽ→Џ)', () => {
+		expect(transliterate('NJEGOŠ', 'toCyrillic')).toBe('ЊЕГОШ');
+		expect(transliterate('LJUBAV', 'toCyrillic')).toBe('ЉУБАВ');
+		expect(transliterate('DŽAK', 'toCyrillic')).toBe('ЏАК');
+		expect(transliterate('KONJ', 'toCyrillic')).toBe('КОЊ');
+		expect(transliterate('LJNJDŽ', 'toCyrillic')).toBe('ЉЊЏ');
+	});
+
+	it('handles Unicode digraph characters (U+01C4–U+01CC)', () => {
+		expect(transliterate('ǈubav', 'toCyrillic')).toBe('Љубав');
+		expect(transliterate('ǋegoš', 'toCyrillic')).toBe('Његош');
+		expect(transliterate('ǅak', 'toCyrillic')).toBe('Џак');
+		expect(transliterate('ǉǌǆ', 'toCyrillic')).toBe('љњџ');
+		expect(transliterate('ǇǊǄ', 'toCyrillic')).toBe('ЉЊЏ');
+	});
+
+	it('handles decomposed (NFD) input', () => {
+		expect(transliterate('Život', 'toCyrillic')).toBe('Живот');
+		expect(transliterate('DŽAK', 'toCyrillic')).toBe('ЏАК');
+		expect(transliterate('ć', 'toCyrillic')).toBe('ћ');
+		expect(transliterate('Đorđe Čačak'.normalize('NFD'), 'toCyrillic')).toBe(
+			transliterate('Đorđe Čačak', 'toCyrillic')
+		);
+	});
+
 	it('handles special Serbian characters (Đ, Ć, Ž, Č, Š)', () => {
 		expect(transliterate('Đorđe', 'toCyrillic')).toBe('Ђорђе');
 		expect(transliterate('Ćirilica', 'toCyrillic')).toBe('Ћирилица');
@@ -151,8 +176,14 @@ describe('transliterate - edge cases', () => {
 			}
 		);
 
+		// Current behaviour for the limitation above: all-caps merges like lowercase does
+		it('merges ambiguous all-caps digraphs like lowercase', () => {
+			expect(transliterate('INJEKCIJA', 'toCyrillic')).toBe('ИЊЕКЦИЈА');
+		});
+
 		it('should handle mixed-case digraphs as separate letters', () => {
-			expect(transliterate('aNJega', 'toCyrillic')).toBe('аНЈега');
+			expect(transliterate('anJega', 'toCyrillic')).toBe('анЈега');
+			expect(transliterate('lJubav', 'toCyrillic')).toBe('лЈубав');
 			expect(transliterate('poredŽivota', 'toCyrillic')).toBe('поредЖивота');
 		});
 
