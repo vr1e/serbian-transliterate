@@ -1,6 +1,6 @@
 {
 	"name": "serbian-transliterate",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A simple and robust utility for transliterating Serbian text between Cyrillic and Latin (Gaj's Latinica) alphabets.",
 	"keywords": [
 		"serbian",
