@@ -5,174 +5,19 @@ type Direction = 'toLatin' | 'toCyrillic';
 
 /**
  * @internal
- * Mapping of Latin characters and digraphs to their Cyrillic counterparts.
+ * The Serbian alphabet, letter for letter in both scripts (uppercase; lowercase is derived).
  */
-const latinToCyrillicMap: { [key: string]: string } = {
-	DŽ: 'Џ',
-	Dž: 'Џ',
-	dž: 'џ',
-	LJ: 'Љ',
-	Lj: 'Љ',
-	lj: 'љ',
-	NJ: 'Њ',
-	Nj: 'Њ',
-	nj: 'њ',
-	// Unicode single-character digraphs (U+01C4–U+01CC)
-	Ǆ: 'Џ',
-	ǅ: 'Џ',
-	ǆ: 'џ',
-	Ǉ: 'Љ',
-	ǈ: 'Љ',
-	ǉ: 'љ',
-	Ǌ: 'Њ',
-	ǋ: 'Њ',
-	ǌ: 'њ',
-	A: 'А',
-	B: 'Б',
-	V: 'В',
-	G: 'Г',
-	D: 'Д',
-	Đ: 'Ђ',
-	E: 'Е',
-	Ž: 'Ж',
-	Z: 'З',
-	I: 'И',
-	J: 'Ј',
-	K: 'К',
-	L: 'Л',
-	M: 'М',
-	N: 'Н',
-	O: 'О',
-	P: 'П',
-	R: 'Р',
-	S: 'С',
-	T: 'Т',
-	Ć: 'Ћ',
-	U: 'У',
-	F: 'Ф',
-	H: 'Х',
-	C: 'Ц',
-	Č: 'Ч',
-	Š: 'Ш',
-	a: 'а',
-	b: 'б',
-	v: 'в',
-	g: 'г',
-	d: 'д',
-	đ: 'ђ',
-	e: 'е',
-	ž: 'ж',
-	z: 'з',
-	i: 'и',
-	j: 'ј',
-	k: 'к',
-	l: 'л',
-	m: 'м',
-	n: 'н',
-	o: 'о',
-	p: 'п',
-	r: 'р',
-	s: 'с',
-	t: 'т',
-	ć: 'ћ',
-	u: 'у',
-	f: 'ф',
-	h: 'х',
-	c: 'ц',
-	č: 'ч',
-	š: 'ш',
-	W: 'В',
-	w: 'в',
-	X: 'Кс',
-	x: 'кс',
-	Y: 'И',
-	y: 'и',
-	Q: 'К',
-	q: 'к'
-};
+const latinAlphabet =
+	'A B V G D Đ E Ž Z I J K L Lj M N Nj O P R S T Ć U F H C Č Dž Š'.split(' ');
+const cyrillicAlphabet = 'АБВГДЂЕЖЗИЈКЛЉМНЊОПРСТЋУФХЦЧЏШ';
 
 /**
  * @internal
- * Mapping of Cyrillic characters to their Latin counterparts.
+ * Lookup tables indexed by UTF-16 code unit. Pre-filled so V8 keeps them packed
+ * instead of sparse; every mapped character is below U+0500.
  */
-const cyrillicToLatinMap: { [key: string]: string } = {
-	А: 'A',
-	Б: 'B',
-	В: 'V',
-	Г: 'G',
-	Д: 'D',
-	Ђ: 'Đ',
-	Е: 'E',
-	Ж: 'Ž',
-	З: 'Z',
-	И: 'I',
-	Ј: 'J',
-	К: 'K',
-	Л: 'L',
-	Љ: 'Lj',
-	М: 'M',
-	Н: 'N',
-	Њ: 'Nj',
-	О: 'O',
-	П: 'P',
-	Р: 'R',
-	С: 'S',
-	Т: 'T',
-	Ћ: 'Ć',
-	У: 'U',
-	Ф: 'F',
-	Х: 'H',
-	Ц: 'C',
-	Ч: 'Č',
-	Џ: 'Dž',
-	Ш: 'Š',
-	а: 'a',
-	б: 'b',
-	в: 'v',
-	г: 'g',
-	д: 'd',
-	ђ: 'đ',
-	е: 'e',
-	ж: 'ž',
-	з: 'z',
-	и: 'i',
-	ј: 'j',
-	к: 'k',
-	л: 'l',
-	љ: 'lj',
-	м: 'm',
-	н: 'n',
-	њ: 'nj',
-	о: 'o',
-	п: 'p',
-	р: 'r',
-	с: 's',
-	т: 't',
-	ћ: 'ć',
-	у: 'u',
-	ф: 'f',
-	х: 'h',
-	ц: 'c',
-	ч: 'č',
-	џ: 'dž',
-	ш: 'š'
-};
-
-/**
- * @internal
- * Builds a lookup table indexed by UTF-16 code unit from a map's single-character keys.
- */
-const toTable = (map: { [key: string]: string }) => {
-	const keys = Object.keys(map).filter((key) => key.length === 1);
-	const size = Math.max(...keys.map((key) => key.charCodeAt(0))) + 1;
-	// Pre-filled so V8 keeps a packed array instead of a sparse dictionary
-	const table: (string | undefined)[] = new Array(size).fill(undefined);
-	for (const key of keys) table[key.charCodeAt(0)] = map[key];
-	return table;
-};
-
-const cyrillicTable = toTable(cyrillicToLatinMap);
-const latinTable = toTable(latinToCyrillicMap);
+const cyrillicTable: (string | undefined)[] = new Array(0x500).fill(undefined);
+const latinTable: (string | undefined)[] = new Array(0x500).fill(undefined);
 
 /**
  * @internal
@@ -180,15 +25,35 @@ const latinTable = toTable(latinToCyrillicMap);
  * so letters that never start a digraph skip the second lookup.
  */
 const latinDigraphs: (Record<number, string> | undefined)[] = [];
-for (const key of Object.keys(latinToCyrillicMap)) {
-	if (key.length === 2) {
-		const first = key.charCodeAt(0);
+
+const addLatin = (latin: string, cyrillic: string) => {
+	if (latin.length === 1) {
+		latinTable[latin.charCodeAt(0)] = cyrillic;
+	} else {
+		const first = latin.charCodeAt(0);
 		latinDigraphs[first] = {
 			...latinDigraphs[first],
-			[key.charCodeAt(1)]: latinToCyrillicMap[key]
+			[latin.charCodeAt(1)]: cyrillic
 		};
 	}
-}
+};
+
+latinAlphabet.forEach((latin, i) => {
+	const cyrillic = cyrillicAlphabet[i];
+	const lower = cyrillic.toLowerCase();
+	cyrillicTable[cyrillic.charCodeAt(0)] = latin;
+	cyrillicTable[lower.charCodeAt(0)] = latin.toLowerCase();
+	addLatin(latin, cyrillic);
+	addLatin(latin.toUpperCase(), cyrillic); // LJ, NJ, DŽ
+	addLatin(latin.toLowerCase(), lower);
+});
+
+// Unicode single-character digraphs (U+01C4–U+01CC) and non-Serbian Latin letters
+'ǄǅǆǇǈǉǊǋǌWwYyQq'
+	.split('')
+	.forEach((latin, i) => addLatin(latin, 'ЏЏџЉЉљЊЊњВвИиКк'[i]));
+addLatin('X', 'Кс');
+addLatin('x', 'кс');
 
 /**
  * @internal
