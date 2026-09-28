@@ -14,7 +14,7 @@ transliterate('Beograd', 'toCyrillic'); // -> 'Београд'
 ## Features
 
 - **Zero Dependencies**: A single, dependency-free function.
-- **Lightweight**: About 1 KB minified and gzipped, perfect for web and Node.js projects.
+- **Lightweight**: Under 600 bytes minified and gzipped, perfect for web and Node.js projects.
 - **Fast**: A single table-driven pass, 5–8× faster than the alternative (see [Performance](#performance)).
 - **Accurate**: Correctly handles all standard Serbian characters, including digraphs (lj, nj, dž).
 - **Robust**: Preserves capitalization, numbers, punctuation, and non-Serbian characters.
@@ -71,11 +71,11 @@ Operations per second on a ~1 KB paragraph of Serbian prose, compared with [`ser
 | Direction  | serbian-transliterate | serbian-transliteration |  Speedup |
 | ---------- | --------------------: | ----------------------: | -------: |
 | toLatin    |         127,500 ops/s |            16,700 ops/s | **7.6×** |
-| toCyrillic |          93,500 ops/s |            19,900 ops/s | **4.7×** |
+| toCyrillic |          94,000 ops/s |            19,900 ops/s | **4.7×** |
 
 Absolute numbers depend on the machine; the ratio is the more portable figure. Measured on an Apple M1 Pro with Node 22.15. Reproduce with `npm run bench`.
 
-Size: 1.04 KB minified and gzipped, with no dependencies. CI enforces the budget with [size-limit](https://github.com/ai/size-limit); check it with `npm run size`.
+Size: 582 B minified and gzipped (707 B for `serbian-transliteration`, measured the same way), with no dependencies. CI enforces the budget with [size-limit](https://github.com/ai/size-limit); check it with `npm run size`.
 
 ## Known Limitations
 
