@@ -31,7 +31,9 @@
 		"test": "vitest",
 		"build": "rm -rf dist && tsc",
 		"format": "prettier --write \"**/*.{ts,md}\"",
-		"prepublishOnly": "npm test -- --run && npm run build"
+		"prepublishOnly": "npm test -- --run && npm run build",
+		"bench": "vitest bench --run --reporter=verbose",
+		"size": "npm run build && size-limit"
 	},
 	"author": "vr1e",
 	"license": "MIT",
@@ -44,8 +46,18 @@
 		"url": "https://github.com/vr1e/serbian-transliterate/issues"
 	},
 	"devDependencies": {
+		"@size-limit/preset-small-lib": "^14.1.0",
 		"prettier": "^3.9.9",
+		"serbian-transliteration": "^1.0.0",
+		"size-limit": "^14.1.0",
 		"typescript": "^7.0.2",
 		"vitest": "^5.0.2"
-	}
+	},
+	"size-limit": [
+		{
+			"path": "dist/index.js",
+			"gzip": true,
+			"limit": "650 B"
+		}
+	]
 }
