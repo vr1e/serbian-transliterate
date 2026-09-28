@@ -85,9 +85,9 @@ describe('transliterate - toCyrillic', () => {
 	});
 
 	it('handles decomposed (NFD) input', () => {
-		expect(transliterate('Život', 'toCyrillic')).toBe('Живот');
-		expect(transliterate('DŽAK', 'toCyrillic')).toBe('ЏАК');
-		expect(transliterate('ć', 'toCyrillic')).toBe('ћ');
+		expect(transliterate('Z\u030Civot', 'toCyrillic')).toBe('Живот');
+		expect(transliterate('DZ\u030CAK', 'toCyrillic')).toBe('ЏАК');
+		expect(transliterate('c\u0301', 'toCyrillic')).toBe('ћ');
 		expect(transliterate('Đorđe Čačak'.normalize('NFD'), 'toCyrillic')).toBe(
 			transliterate('Đorđe Čačak', 'toCyrillic')
 		);
