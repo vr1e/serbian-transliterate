@@ -20,8 +20,8 @@
 	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
 		}
 	},
 	"files": [
@@ -44,8 +44,8 @@
 		"url": "https://github.com/vr1e/serbian-transliterate/issues"
 	},
 	"devDependencies": {
-		"prettier": "^3.6.2",
-		"typescript": "^5.9.3",
-		"vitest": "^3.2.4"
+		"prettier": "^3.9.9",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.2"
 	}
 }

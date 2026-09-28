@@ -8,12 +8,25 @@ type Direction = 'toLatin' | 'toCyrillic';
  * Mapping of Latin characters and digraphs to their Cyrillic counterparts.
  */
 const latinToCyrillicMap: { [key: string]: string } = {
+	DŽ: 'Џ',
 	Dž: 'Џ',
 	dž: 'џ',
+	LJ: 'Љ',
 	Lj: 'Љ',
 	lj: 'љ',
+	NJ: 'Њ',
 	Nj: 'Њ',
 	nj: 'њ',
+	// Unicode single-character digraphs (U+01C4–U+01CC)
+	Ǆ: 'Џ',
+	ǅ: 'Џ',
+	ǆ: 'џ',
+	Ǉ: 'Љ',
+	ǈ: 'Љ',
+	ǉ: 'љ',
+	Ǌ: 'Њ',
+	ǋ: 'Њ',
+	ǌ: 'њ',
 	A: 'А',
 	B: 'Б',
 	V: 'В',
@@ -190,9 +203,9 @@ export default (text: string, direction: Direction) => {
 			(char) => cyrillicToLatinMap[char] || char
 		);
 	} else {
-		return text.replace(
-			latinRegex,
-			(match) => latinToCyrillicMap[match] || match
-		);
+		// NFC so e.g. Z + U+030C (combining caron) matches the precomposed Ž key
+		return text
+			.normalize('NFC')
+			.replace(latinRegex, (match) => latinToCyrillicMap[match] || match);
 	}
 };
